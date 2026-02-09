@@ -75,7 +75,7 @@ class TestInbox:
 
 class TestMessages:
     def test_messages_default(self, client, mock_session):
-        mock_session.get.return_value = _json_response([{"id": 1, "subject": "Test"}])
+        mock_session.get.return_value = _json_response({"messages": [{"id": 1, "subject": "Test"}]})
         result = client.messages()
         assert len(result) == 1
         params = mock_session.get.call_args[1]["params"]
@@ -83,7 +83,7 @@ class TestMessages:
         assert params["unread_only"] == "false"
 
     def test_messages_unread_only(self, client, mock_session):
-        mock_session.get.return_value = _json_response([])
+        mock_session.get.return_value = _json_response({"messages": []})
         client.messages(limit=5, unread_only=True)
         params = mock_session.get.call_args[1]["params"]
         assert params["limit"] == 5

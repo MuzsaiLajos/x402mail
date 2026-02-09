@@ -111,7 +111,7 @@ class X402Mail:
             f"{self._base}/api/v1/inbox/messages", params=params
         )
         resp.raise_for_status()
-        return resp.json()
+        return resp.json()["messages"]
 
     def read(self, message_id: int) -> dict:
         """Read a specific message by ID. Marks it as read."""
