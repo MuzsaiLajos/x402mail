@@ -103,6 +103,7 @@ $1 USDC covers ~200 emails.
 ## Links
 
 - [Website & Docs](https://x402mail.com/docs)
+- [GitHub](https://github.com/MuzsaiLajos/x402mail)
 
 ## License
 
