@@ -12,8 +12,9 @@ def main():
         print()
         print("Starts a local MCP server (stdio) for LLM integration.")
         print()
-        print("Required env vars:")
-        print("  X402MAIL_PRIVATE_KEY  Your Ethereum private key (0x...)")
+        print("Wallet (one of):")
+        print("  X402MAIL_PRIVATE_KEY  Ethereum private key (0x...)")
+        print("  CDP_API_KEY_ID + CDP_API_KEY_SECRET + CDP_WALLET_SECRET")
         sys.exit(1)
 
 

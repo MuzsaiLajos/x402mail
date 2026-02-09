@@ -26,14 +26,18 @@ _client: X402Mail | None = None
 def _get_client() -> X402Mail:
     global _client
     if _client is None:
+        server_url = os.environ.get("X402MAIL_SERVER_URL")
         key = os.environ.get("X402MAIL_PRIVATE_KEY")
-        if not key:
+        if key:
+            _client = X402Mail(private_key=key, _server_url=server_url)
+        elif os.environ.get("CDP_API_KEY_ID"):
+            _client = X402Mail.from_cdp(_server_url=server_url)
+        else:
             raise RuntimeError(
-                "X402MAIL_PRIVATE_KEY environment variable is required. "
-                "Set it to your Ethereum private key (0x...)."
+                "No wallet configured. Set either:\n"
+                "  X402MAIL_PRIVATE_KEY  — Ethereum private key (0x...)\n"
+                "  CDP_API_KEY_ID + CDP_API_KEY_SECRET + CDP_WALLET_SECRET  — CDP Server Wallet"
             )
-        server_url = os.environ.get("X402MAIL_SERVER_URL")  # undocumented, for dev
-        _client = X402Mail(private_key=key, _server_url=server_url)
     return _client
 
 

@@ -1,6 +1,7 @@
 """Tests for x402mail client."""
 
-from unittest.mock import MagicMock, patch
+import asyncio
+from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
@@ -97,3 +98,57 @@ class TestRead:
         result = client.read(message_id=7)
         assert result["body"] == "World"
         assert "/api/v1/inbox/messages/7" in mock_session.get.call_args[0][0]
+
+
+class TestAddress:
+    def test_address_property(self, mock_session):
+        from x402mail.client import X402Mail, EthAccountSigner
+        EthAccountSigner.return_value.address = "0xABCD"
+        client = X402Mail(private_key=FAKE_KEY)
+        assert client.address == "0xABCD"
+
+
+class TestFromCdp:
+    def test_from_cdp_creates_client(self):
+        """from_cdp() should use CdpClient + EvmLocalAccount to create a working client."""
+        mock_server_account = MagicMock()
+        mock_local_account = MagicMock()
+        mock_local_account.address = "0xCDP123"
+
+        mock_cdp_client = MagicMock()
+        mock_cdp_client.evm.get_or_create_account = AsyncMock(return_value=mock_server_account)
+
+        with (
+            patch("x402mail.client.x402_requests") as mock_factory,
+            patch("x402mail.client.x402ClientSync"),
+            patch("x402mail.client.ExactEvmScheme"),
+            patch("x402mail.client.EthAccountSigner") as mock_signer_cls,
+            patch.dict("sys.modules", {
+                "cdp": MagicMock(
+                    CdpClient=MagicMock(return_value=mock_cdp_client),
+                    EvmLocalAccount=MagicMock(return_value=mock_local_account),
+                ),
+            }),
+        ):
+            mock_signer_cls.return_value.address = "0xCDP123"
+            session = MagicMock()
+            mock_factory.return_value = session
+
+            from x402mail.client import X402Mail
+            client = X402Mail.from_cdp()
+
+            assert client.address == "0xCDP123"
+            assert client._session is session
+
+    def test_from_cdp_import_error(self):
+        """from_cdp() should raise ImportError with helpful message if cdp-sdk missing."""
+        with (
+            patch("x402mail.client.x402_requests"),
+            patch("x402mail.client.x402ClientSync"),
+            patch("x402mail.client.ExactEvmScheme"),
+            patch("x402mail.client.EthAccountSigner"),
+            patch.dict("sys.modules", {"cdp": None}),
+        ):
+            from x402mail.client import X402Mail
+            with pytest.raises(ImportError, match="cdp-sdk"):
+                X402Mail.from_cdp()

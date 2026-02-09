@@ -24,6 +24,9 @@ dependencies = [
     "mcp>=1.0.0",
 ]
 
+[project.optional-dependencies]
+cdp = ["cdp-sdk>=1.0.0"]
+
 [project.scripts]
 x402mail = "x402mail.cli:main"
 
