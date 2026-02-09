@@ -18,12 +18,7 @@ class X402Mail:
 
     Usage::
 
-        # Option A: private key
-        mail = X402Mail(private_key="0x...")
-
-        # Option B: CDP Server Wallet (pip install x402mail[cdp])
-        mail = X402Mail.from_cdp()
-
+        mail = X402Mail.from_cdp()  # or: X402Mail(private_key="0x...")
         mail.send(to="alice@example.com", subject="Hi", body="Hello!")
     """
 
