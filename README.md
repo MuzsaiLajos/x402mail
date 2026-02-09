@@ -2,26 +2,33 @@
 
 Send and receive emails with crypto micropayments. No accounts, no API keys — just a wallet.
 
-Built on the [x402 protocol](https://www.x402.org/) — every API call is paid with USDC on Base via HTTP 402.
+Built on the [x402 protocol](https://www.x402.org/) — every API call is paid with USDC on Base.
 
 ## Install
 
 ```bash
-pip install x402mail
+pip install x402mail[cdp]
 ```
 
 ## Quick Start
 
+```bash
+export CDP_API_KEY_ID="your-key-id"          # from cdp.coinbase.com
+export CDP_API_KEY_SECRET="your-key-secret"
+export CDP_WALLET_SECRET="your-wallet-secret"
+```
+
 ```python
 from x402mail import X402Mail
 
-mail = X402Mail(private_key="0x...")
+mail = X402Mail.from_cdp()   # wallet created automatically
+print(mail.address)          # fund this with USDC on Base
 
 # Send an email ($0.005 USDC)
 result = mail.send(
     to="alice@example.com",
-    subject="Hello from web3",
-    body="Sent via x402 micropayment!"
+    subject="Hello from x402mail",
+    body="Sent with 3 lines of Python!"
 )
 print(result)
 # {"message_id": "abc-123", "inbox": "inbox-0x1a2b...@x402mail.com"}
@@ -34,9 +41,12 @@ inbox = mail.inbox()
 messages = mail.messages(limit=5, unread_only=True)
 
 # Read a message ($0.001)
-msg = mail.read(message_id=1)
-print(msg["body"])
+if messages:
+    msg = mail.read(message_id=messages[0]["id"])
+    print(msg["body"])
 ```
+
+Or with a private key: `X402Mail(private_key=os.getenv("EVM_PRIVATE_KEY"))`
 
 ## MCP Server for AI Agents
 
@@ -46,25 +56,7 @@ Run a local MCP server so LLMs (Claude, GPT, etc.) can send and receive emails:
 x402mail mcp
 ```
 
-### Claude Desktop / Cursor / Claude Code
-
-Add to your MCP config:
-
-```json
-{
-  "mcpServers": {
-    "x402mail": {
-      "command": "uvx",
-      "args": ["x402mail", "mcp"],
-      "env": {
-        "X402MAIL_PRIVATE_KEY": "0x..."
-      }
-    }
-  }
-}
-```
-
-Or if you installed it with pip:
+Add to your MCP config (Claude Desktop / Cursor / Claude Code):
 
 ```json
 {
@@ -73,7 +65,9 @@ Or if you installed it with pip:
       "command": "x402mail",
       "args": ["mcp"],
       "env": {
-        "X402MAIL_PRIVATE_KEY": "0x..."
+        "CDP_API_KEY_ID": "your-key-id",
+        "CDP_API_KEY_SECRET": "your-key-secret",
+        "CDP_WALLET_SECRET": "your-wallet-secret"
       }
     }
   }
@@ -89,26 +83,7 @@ Or if you installed it with pip:
 | `list_messages` | $0.002 | List inbox messages |
 | `read_message` | $0.001 | Read a specific message |
 
-## How It Works
-
-1. You provide your Ethereum private key (for signing payments)
-2. Each API call is paid via [x402](https://www.x402.org/) micropayments in USDC on Base
-3. Your wallet address = your identity — no accounts needed
-4. Your inbox is derived from your wallet: `inbox-{wallet}@x402mail.com`
-
-```
-You → x402mail SDK → x402mail.com API
-                         ↓
-                    402 Payment Required
-                         ↓
-         SDK auto-signs USDC payment
-                         ↓
-                    Email sent ✓
-```
-
 ## Pricing
-
-All prices in USDC on Base mainnet.
 
 | Action | Cost |
 |--------|------|
@@ -119,10 +94,11 @@ All prices in USDC on Base mainnet.
 
 $1 USDC covers ~200 emails.
 
-## Requirements
+## Wallet Setup
 
-- Python 3.10+
-- An Ethereum wallet with USDC on [Base](https://base.org)
+**CDP Server Wallet (recommended):** Follow the [CDP quickstart guide](https://docs.cdp.coinbase.com/x402/quickstart-for-buyers) to get API keys. No private keys to manage.
+
+**Private Key:** Use any EVM wallet with USDC on Base. `pip install x402mail` (without `[cdp]`).
 
 ## Links
 
