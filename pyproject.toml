@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "x402mail"
-version = "0.2.4"
+version = "0.2.5"
 description = "Send and receive emails with crypto micropayments via x402"
 readme = "README.md"
 license = "MIT"

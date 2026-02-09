@@ -1,8 +1,8 @@
 # x402mail
 
-Send and receive emails with crypto micropayments. No accounts, no API keys — just a wallet.
+Send and receive emails with crypto micropayments. No accounts, no API keys - just a wallet.
 
-Built on the [x402 protocol](https://www.x402.org/) — every API call is paid with USDC on Base.
+Built on the [x402 protocol](https://www.x402.org/) - every API call is paid with USDC on Base.
 
 ## Install
 
@@ -21,29 +21,17 @@ export CDP_WALLET_SECRET="your-wallet-secret"
 ```python
 from x402mail import X402Mail
 
-mail = X402Mail.from_cdp()   # wallet created automatically
-print(mail.address)          # fund this with USDC on Base
+mail = X402Mail.from_cdp()
 
-# Send an email ($0.005 USDC)
-result = mail.send(
+mail.send(
     to="alice@example.com",
     subject="Hello from x402mail",
     body="Sent with 3 lines of Python!"
 )
-print(result)
-# {"message_id": "abc-123", "inbox": "inbox-0x1a2b...@x402mail.com"}
 
-# Check your inbox ($0.001)
-inbox = mail.inbox()
-# {"inbox": "inbox-0x1a2b...@x402mail.com", "total": 5, "unread": 2}
-
-# List messages ($0.002)
-messages = mail.messages(limit=5, unread_only=True)
-
-# Read a message ($0.001)
-if messages:
-    msg = mail.read(message_id=messages[0]["id"])
-    print(msg["body"])
+mail.inbox()
+mail.messages(limit=5)
+mail.read(message_id=1)
 ```
 
 Or with a private key: `X402Mail(private_key=os.getenv("EVM_PRIVATE_KEY"))`
